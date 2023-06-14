@@ -1,5 +1,9 @@
 name: Create MySQL RDS with Terraform
 
+permissions:
+ id-token: write
+ contents: read
+
 on: 
   workflow_dispatch:
     inputs:
