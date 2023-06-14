@@ -40,7 +40,7 @@ jobs:
       run: terraform init
 
     - name: Deploy to Development Environment
-      if: ${{ github.event.inputs.choice == 'create' }}
+      if: ${{ github.event.inputs.action == 'create' }}
       env:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
         DB_PASSWORD: ${{ secrets.DEV_RDS_PASS }}
@@ -49,7 +49,7 @@ jobs:
         terraform apply --auto-approve -var="db_username=${DB_USERNAME}" -var="db_password=${DB_PASSWORD}" 
 
     - name: Destroy development Environment
-      if: ${{ github.event.inputs.choice == 'destroy' }}
+      if: ${{ github.event.inputs.action == 'destroy' }}
       run: |
         cd environments/dev
         terraform destroy --auto-approve 
