@@ -48,7 +48,7 @@ jobs:
         DB_PASSWORD: ${{ secrets.DEV_RDS_PASS }}
       run: |
         cd enviroments/dev
-        terraform apply --auto-approve -var="db_username=${DB_USERNAME}" -var="db_password=${DB_PASSWORD}" 
+        terraform apply --auto-approve -var="admin_user=${DB_USERNAME}" -var="admin_pass=${DB_PASSWORD}" 
 
     - name: Destroy development Environment
       if: ${{ github.event.inputs.action == 'destroy' }}
