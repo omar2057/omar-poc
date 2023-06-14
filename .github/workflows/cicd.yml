@@ -43,9 +43,9 @@ jobs:
 
     - name: Deploy to Development Environment
       uses: mirromutth/mysql-action@v1.1
-        with:
-          mysql root password: ${{ secrets.DEV_RDS_USER }}
-          mysql password: ${{ secrets.DEV_RDS_PASS }}
+      with:
+        mysql root password: ${{ secrets.DEV_RDS_USER }}
+        mysql password: ${{ secrets.DEV_RDS_PASS }}
       if: ${{ github.event.inputs.action == 'create' }}
       env:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
