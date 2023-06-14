@@ -24,7 +24,7 @@ jobs:
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::391320378272:role/service-role-poc
+        role-to-assume: ${{ secrets.AWS_ROLE }}
         role-session-name: GitHub_to_AWS_poc
         aws-region: us-east-1
         role-duration-seconds: 3600
@@ -40,7 +40,7 @@ jobs:
       run: terraform init
 
     - name: Deploy to Development Environment
-      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.choice == 'create' }}
+      if: ${{ github.event.inputs.choice == 'create' }}
       env:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
         DB_PASSWORD: ${{ secrets.DEV_RDS_PASS }}
@@ -49,7 +49,7 @@ jobs:
         terraform apply --auto-approve -var="db_username=${DB_USERNAME}" -var="db_password=${DB_PASSWORD}" 
 
     - name: Destroy development Environment
-      if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.choice == 'destroy' }}
+      if: ${{ github.event.inputs.choice == 'destroy' }}
       run: |
         cd environments/dev
         terraform destroy --auto-approve 
