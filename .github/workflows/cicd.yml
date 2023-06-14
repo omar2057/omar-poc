@@ -39,8 +39,8 @@ jobs:
     - name: Deploy to Development Environment
       if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.choice == 'create' }}
       env:
-          DB_USERNAME: ${{ secrets.DB_USERNAME_PROD }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD_PROD }}
+          DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
+          DB_PASSWORD: ${{ secrets.DEV_RDS_PASS }}
       run: |
         cd environments/dev
         terraform apply --auto-approve -var="db_username=${DB_USERNAME}" -var="db_password=${DB_PASSWORD}" 
