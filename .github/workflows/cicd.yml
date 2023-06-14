@@ -20,7 +20,7 @@ jobs:
     - name: configure aws credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE }} 
+        role-to-assume: arn:aws:iam::391320378272:role/service-role-poc
         role-session-name: GitHub_to_AWS_poc
         aws-region: us-east-1
         role-duration-seconds: 3600
