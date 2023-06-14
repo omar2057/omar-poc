@@ -37,7 +37,9 @@ jobs:
       uses: hashicorp/setup-terraform@v2
 
     - name: Initialize Terraform
-      run: terraform init
+      run: |
+        cd enviroments/dev 
+        terraform init
 
     - name: Deploy to Development Environment
       if: ${{ github.event.inputs.action == 'create' }}
