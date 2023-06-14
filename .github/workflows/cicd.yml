@@ -29,6 +29,12 @@ jobs:
         aws-region: us-east-1
         role-duration-seconds: 3600
 
+    - name: configure mysql
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql root password: ${{ secrets.DEV_RDS_USER }}
+        mysql password: ${{ secrets.DEV_RDS_PASS }}
+
     - name: Sts GetCallerIdentity
       run: |
         aws sts get-caller-identity
@@ -42,10 +48,6 @@ jobs:
         terraform init
 
     - name: Deploy to Development Environment
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql root password: ${{ secrets.DEV_RDS_USER }}
-        mysql password: ${{ secrets.DEV_RDS_PASS }}
       if: ${{ github.event.inputs.action == 'create' }}
       env:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
