@@ -42,13 +42,17 @@ jobs:
         terraform init
 
     - name: Deploy to Development Environment
+      uses: mirromutth/mysql-action@v1.1
+        with:
+          mysql root password: ${{ secrets.DEV_RDS_USER }}
+          mysql password: ${{ secrets.DEV_RDS_PASS }}
       if: ${{ github.event.inputs.action == 'create' }}
       env:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
-        DB_PASSWORD: ${{ secrets.DEV_RDS_PASS }}
+        MYSQL_PWD: ${{ secrets.DEV_RDS_PASS }}
       run: |
         cd enviroments/dev
-        terraform apply --auto-approve -var="admin_user=${DB_USERNAME}" -var="admin_pass=${DB_PASSWORD}" 
+        terraform apply --auto-approve -var="admin_user=${DB_USERNAME}" -var="admin_pass=${MYSQL_PWD}" 
 
     - name: Destroy development Environment
       if: ${{ github.event.inputs.action == 'destroy' }}
