@@ -31,4 +31,11 @@ resource "aws_db_instance" "myinstance" {
   publicly_accessible    = true
 }
 
+resource "null_resource" "execute_sql" {
+  provisioner "local-exec" {
+    command = "mysql -h ${aws_db_instance.myinstance.address} -u ${var.admin_user} < ../../modules/rds/dump_db.sql"
+  }
+  depends_on = [aws_db_instance.myinstance]
+}
+
 
