@@ -33,7 +33,7 @@ resource "aws_db_instance" "myinstance" {
 
 resource "null_resource" "execute_sql" {
   provisioner "local-exec" {
-    command = "mysql -h ${aws_db_instance.myinstance.address} -u ${var.admin_user} < ../../modules/rds/dump_db.sql"
+    command = "mysql -h ${aws_db_instance.myinstance.address} -u ${var.admin_user} < ../../modules/rds/dump_db_go.sql"
   }
   depends_on = [aws_db_instance.myinstance]
 }
