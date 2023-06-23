@@ -1,3 +1,96 @@
+# Network Definition 
+resource "aws_vpc" "poc_vpc" {
+  cidr_block = "172.200.0.0/16"
+  tags = {
+    Name = "vpc-poc"
+  }
+}
+
+# Public subnets for 1 availability zones
+resource "aws_subnet" "poc_public_subnet-a" {
+  vpc_id            = aws_vpc.poc_vpc.id
+  cidr_block        = "172.200.0.0/20"
+  availability_zone = "us-east-1a"
+  tags = {
+    Name = "poc-public-subnet-a"
+  }
+}
+
+# Private subnets for 1 availability zones
+resource "aws_subnet" "poc_private_subnet-a" {
+  vpc_id            = aws_vpc.poc_vpc.id
+  cidr_block        = "172.200.16.0/20"
+  availability_zone = "us-east-1a"
+  tags = {
+    Name = "poc-private-subnet-a"
+  }
+}
+
+# DB subnets for 1 availability zones
+resource "aws_subnet" "poc_db_subnet-a" {
+  vpc_id            = aws_vpc.poc_vpc.id
+  cidr_block        = "172.200.32.0/20"
+  availability_zone = "us-east-1a"
+  tags = {
+    Name = "poc-db-subnet-a"
+  }
+}
+
+# VPC Route tables
+resource "aws_route_table" "poc_public_rt" {
+  vpc_id = aws_vpc.poc_vpc.id
+  tags = {
+    Name = "poc-public-rt"
+  }
+}
+
+resource "aws_route_table" "poc_private_rt" {
+  vpc_id = aws_vpc.poc_vpc.id
+  tags = {
+    Name = "poc-private-rt"
+  }
+}
+
+resource "aws_route_table" "poc_db_rt" {
+  vpc_id = aws_vpc.poc_vpc.id
+  tags = {
+    Name = "poc-db-rt"
+  }
+}
+
+# Public subnets route table association
+resource "aws_route_table_association" "public_rt_a" {
+  subnet_id = aws_subnet.poc_public_subnet-a.id
+  route_table_id = aws_route_table.poc_public_rt.id
+}
+
+# Private subnets route table association
+resource "aws_route_table_association" "private_rt_a" {
+  subnet_id = aws_subnet.poc_private_subnet-a.id
+  route_table_id = aws_route_table.poc_private_rt.id
+}
+
+# DB subnets route table association
+resource "aws_route_table_association" "db_rt_a" {
+  subnet_id = aws_subnet.poc_db_subnet-a.id
+  route_table_id = aws_route_table.poc_db_rt.id
+}
+
+# Internet Gateway Definition
+resource "aws_internet_gateway" "poc_igw_01" {
+  vpc_id = aws_vpc.poc_vpc.id
+  tags = {
+    Name = "poc-igw"
+  }
+}
+
+# Internet Route for public subnets
+resource "aws_route" "poc_internet_rt_01" {
+  destination_cidr_block = "0.0.0.0/0"
+  route_table_id = aws_route_table.poc_public_rt.id
+  gateway_id = aws_internet_gateway.poc_igw_01.id
+}
+
 #create a security group for RDS Database Instance
 resource "aws_security_group" "rds_sg" {
   name = "rds_sg"
@@ -13,6 +106,7 @@ resource "aws_security_group" "rds_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  vpc_id      = aws_vpc.poc_vpc.id
 }
 
 #create a RDS Database Instance
