@@ -20,9 +20,9 @@ resource "aws_subnet" "poc_public_subnet-a" {
 resource "aws_subnet" "poc_private_subnet-a" {
   vpc_id            = aws_vpc.poc_vpc.id
   cidr_block        = "172.200.16.0/20"
-  availability_zone = "us-east-1a"
+  availability_zone = "us-east-1b"
   tags = {
-    Name = "poc-private-subnet-a"
+    Name = "poc-private-subnet-b"
   }
 }
 
