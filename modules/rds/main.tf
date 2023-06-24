@@ -1,32 +1,70 @@
 resource "aws_vpc" "poc_vpc" {
   cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support = true
+
+  tags = {
+    Name = "poc_vpc"
+  }
 }
 
-resource "aws_subnet" "poc_public_subnet" {
+resource "aws_subnet" "poc_public_subnet_1" {
   vpc_id = aws_vpc.poc_vpc.id
   cidr_block = "10.0.0.0/24"
   availability_zone = "us-east-1a"
+  tags = {
+    Name = "poc_PublicSubnet1"
+  }
 }
 
-resource "aws_subnet" "poc_private_subnet" {
+resource "aws_subnet" "poc_public_subnet_2" {
   vpc_id = aws_vpc.poc_vpc.id
   cidr_block = "10.0.1.0/24"
   availability_zone = "us-east-1b"
-}
-
-resource "aws_db_subnet_group" "poc_db_subnet_group" {
-  name = "poc_db_subnet_group"
-  subnet_ids = [aws_subnet.poc_public_subnet.id, aws_subnet.poc_private_subnet.id]
+  tags = {
+    Name = "poc_PublicSubnet2"
+  }
 }
 
 resource "aws_internet_gateway" "poc_igw" {
   vpc_id = aws_vpc.poc_vpc.id
+  tags = {
+    Name = "poc_igw"
+  }
 }
 
-# resource "aws_internet_gateway_attachment" "poc_igw_attach" {
-#   internet_gateway_id = aws_internet_gateway.poc_igw.id
-#   vpc_id              = aws_vpc.poc_vpc.id
-# }
+resource "aws_route_table" "poc_public_db_rt" {
+  vpc_id = aws_vpc.poc_vpc.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.poc_igw.id
+  }
+  tags = {
+    Name = "poc-db-rt"
+  }
+}
+
+# Associate public subnets with the public route table
+resource "aws_route_table_association" "public_subnet_1_association" {
+  subnet_id      = aws_subnet.poc_public_subnet_1.id
+  route_table_id = aws_route_table.poc_public_db_rt.id
+}
+
+resource "aws_route_table_association" "public_subnet_2_association" {
+  subnet_id      = aws_subnet.poc_public_subnet_2.id
+  route_table_id = aws_route_table.poc_public_db_rt.id
+}
+
+resource "aws_db_subnet_group" "poc_db_subnet_group" {
+  name       = "poc_dbgroup"
+  subnet_ids = [
+    aws_subnet.poc_public_subnet_1.id,
+    aws_subnet.poc_public_subnet_2.id,
+  ]
+  tags = {
+    Name = "poc_dbgroup"
+  }
+}
 
 resource "aws_security_group" "rds_sg" {
   name = "rds_sg"
