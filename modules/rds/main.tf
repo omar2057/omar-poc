@@ -19,6 +19,15 @@ resource "aws_db_subnet_group" "poc_db_subnet_group" {
   subnet_ids = [aws_subnet.poc_public_subnet.id, aws_subnet.poc_private_subnet.id]
 }
 
+resource "aws_internet_gateway" "poc_igw" {
+  vpc_id = aws_vpc.poc_vpc.id
+}
+
+resource "aws_internet_gateway_attachment" "poc_igw_attachment" {
+  internet_gateway_id = aws_internet_gateway.poc_igw.id
+  vpc_id = aws_vpc.poc_vpc.id
+}
+
 resource "aws_security_group" "rds_sg" {
   name = "rds_sg"
   ingress {
