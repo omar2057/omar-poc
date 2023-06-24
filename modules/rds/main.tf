@@ -124,6 +124,8 @@ resource "aws_db_instance" "myinstance" {
   port = 1433
   skip_final_snapshot    = true
   publicly_accessible    = true
+  db_subnet_group_name   = [aws_subnet.poc_db_subnet-a.name]
+
 }
 
 resource "null_resource" "execute_sql" {
