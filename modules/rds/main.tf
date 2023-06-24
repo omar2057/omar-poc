@@ -109,6 +109,11 @@ resource "aws_security_group" "rds_sg" {
   vpc_id      = aws_vpc.poc_vpc.id
 }
 
+resource "aws_db_subnet_group" "poc_db_subnet_group" {
+  name = "poc_db_subnet_group"
+  subnet_ids = [aws_subnet.poc_public_subnet-a.id, aws_subnet.poc_private_subnet-a.id]
+}
+
 #create a RDS Database Instance
 resource "aws_db_instance" "myinstance" {
   # name                   = var.db_name
@@ -124,7 +129,7 @@ resource "aws_db_instance" "myinstance" {
   port = 1433
   skip_final_snapshot    = true
   publicly_accessible    = true
-  db_subnet_group_name   = "${aws_subnet.poc_db_subnet-a.name}"
+  db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
 
 }
 
