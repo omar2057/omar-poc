@@ -23,10 +23,10 @@ resource "aws_internet_gateway" "poc_igw" {
   vpc_id = aws_vpc.poc_vpc.id
 }
 
-resource "aws_internet_gateway_attachment" "poc_igw_attach" {
-  internet_gateway_id = aws_internet_gateway.poc_igw.id
-  vpc_id              = aws_vpc.poc_vpc.id
-}
+# resource "aws_internet_gateway_attachment" "poc_igw_attach" {
+#   internet_gateway_id = aws_internet_gateway.poc_igw.id
+#   vpc_id              = aws_vpc.poc_vpc.id
+# }
 
 resource "aws_security_group" "rds_sg" {
   name = "rds_sg"
