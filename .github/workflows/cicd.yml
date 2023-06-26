@@ -54,3 +54,12 @@ jobs:
       run: |
         cd environments/dev
         terraform destroy --auto-approve -var="admin_user=${DB_USERNAME}" -var="admin_pass=${SQLCMDPASSWORD}" 
+
+    - name: Run Scrips
+      if: ${{ github.event.inputs.action == 'create' }}
+      env:
+        DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
+        SQLCMDPASSWORD: ${{ secrets.DEV_RDS_PASS }}
+      run: |
+        sqlcmd -U admin -S myrdsinstance.c6bkmuvtgdqt.us-east-1.rds.amazonaws.com,1433 -i query.sql
+
