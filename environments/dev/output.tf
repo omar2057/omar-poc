@@ -1,19 +1,19 @@
-output "bi01" {
+output "m_bi01" {
   value = module.mysql_rds.bi01
 }
 
-output "bi01" {
+output "m_bi01" {
   value = module.mysql_rds.bi02
 }
 
-output "prd01" {
+output "m_prd01" {
   value = module.mysql_rds.prd01
 }
 
-output "prdcorp" {
+output "m_prdcorp" {
   value = module.mysql_rds.prdcorp
 }
 
-output "prdpins" {
+output "m_prdpins" {
   value = module.mysql_rds.prdpins
 }
