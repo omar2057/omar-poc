@@ -164,11 +164,11 @@ resource "aws_db_instance" "prdpins" {
   db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
 }
 
-resource "null_resource" "execute_sql" {
-  provisioner "local-exec" {
-    command = "sqlcmd -U ${var.admin_user} -S ${aws_db_instance.myinstance.address},${aws_db_instance.myinstance.port} -i ../../modules/rds/dump_db.sql"
-  }
-  depends_on = [aws_db_instance.myinstance]
-}
+# resource "null_resource" "execute_sql" {
+#   provisioner "local-exec" {
+#     command = "sqlcmd -U ${var.admin_user} -S ${aws_db_instance.bi01.address},${aws_db_instance.bi01.port} -i ../../modules/rds/dump_db.sql"
+#   }
+#   depends_on = [aws_db_instance.bi01]
+# }
 
 

@@ -1,4 +1,4 @@
-output "di01" {
+output "bi01" {
   value = aws_db_instance.bi01.address
 }
 

@@ -2,7 +2,7 @@ output "m_bi01" {
   value = module.mysql_rds.bi01
 }
 
-output "m_bi01" {
+output "m_bi02" {
   value = module.mysql_rds.bi02
 }
 
