@@ -38,6 +38,7 @@ jobs:
         terraform init
 
     - name: Deploy to Development Environment
+      id: deploy
       if: ${{ github.event.inputs.action == 'create' }}
       env:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
@@ -45,6 +46,7 @@ jobs:
       run: |
         cd environments/dev
         terraform apply --auto-approve -var="admin_user=${DB_USERNAME}" -var="admin_pass=${SQLCMDPASSWORD}" 
+        echo "::set-output name=rds_host1::$(terraform output -raw custom_module_rds_endpoint)"
 
     - name: Destroy development Environment
       if: ${{ github.event.inputs.action == 'destroy' }}
@@ -61,5 +63,5 @@ jobs:
         DB_USERNAME: ${{ secrets.DEV_RDS_USER }}
         SQLCMDPASSWORD: ${{ secrets.DEV_RDS_PASS }}
       run: |
-        sqlcmd -U admin -S myrdsinstance.c6bkmuvtgdqt.us-east-1.rds.amazonaws.com,1433 -i query.sql
+        sqlcmd -U admin -S ${{ steps.deploy.outputs.rds_host1 }},1433 -i query.sql
 
