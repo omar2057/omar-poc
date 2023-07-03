@@ -1,0 +1,39 @@
+name: RDS recreatation
+
+permissions:
+ id-token: write
+ contents: read
+
+on: 
+  workflow_dispatch:
+    inputs:
+      instance:
+        type: string
+        description: Name of instance to re-create
+        required: true
+      name_backup:
+        type: string
+        description: New instance name
+        default: instancebackup
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: configure aws credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE }}
+        role-session-name: GitHub_to_AWS_poc
+        aws-region: us-east-1
+        role-duration-seconds: 3600
+
+    - name: Deploy to Development Environment
+      env:
+        DB_INSTANCE_IDENTIFIER: ${{ github.event.inputs.instance }}
+        SNAPSHOT_NAME: ${{ github.event.inputs.name_backup }}
+      run: |
+        bash .github/scripts/rds_to_rds.sh

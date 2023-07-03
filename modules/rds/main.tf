@@ -84,10 +84,9 @@ resource "aws_security_group" "rds_sg" {
 }
 
 #create a RDS Database Instance
-resource "aws_db_instance" "myinstance" {
-  # name                   = var.db_name
+resource "aws_db_instance" "bi01" {
   engine                 = "sqlserver-ex"
-  identifier             = "myrdsinstance"
+  identifier             = "bi01"
   allocated_storage      = 20
   engine_version         = "14.00.3451.2.v1"
   instance_class         = "db.t2.micro"
@@ -99,14 +98,77 @@ resource "aws_db_instance" "myinstance" {
   skip_final_snapshot    = true
   publicly_accessible    = true
   db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
-
 }
 
-resource "null_resource" "execute_sql" {
-  provisioner "local-exec" {
-    command = "sqlcmd -U ${var.admin_user} -S ${aws_db_instance.myinstance.address},${aws_db_instance.myinstance.port} -i ../../modules/rds/dump_db.sql"
-  }
-  depends_on = [aws_db_instance.myinstance]
+resource "aws_db_instance" "bi02" {
+  engine                 = "sqlserver-ex"
+  identifier             = "bi02"
+  allocated_storage      = 20
+  engine_version         = "14.00.3451.2.v1"
+  instance_class         = "db.t2.micro"
+  username               = var.admin_user
+  password               = var.admin_pass
+  # parameter_group_name   = "default.mssql"
+  vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
+  port = 1433
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+  db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
 }
+
+resource "aws_db_instance" "prd01" {
+  engine                 = "sqlserver-ex"
+  identifier             = "prd01"
+  allocated_storage      = 20
+  engine_version         = "14.00.3451.2.v1"
+  instance_class         = "db.t2.micro"
+  username               = var.admin_user
+  password               = var.admin_pass
+  # parameter_group_name   = "default.mssql"
+  vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
+  port = 1433
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+  db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
+}
+
+resource "aws_db_instance" "prdcorp" {
+  engine                 = "sqlserver-ex"
+  identifier             = "prdcorp"
+  allocated_storage      = 20
+  engine_version         = "14.00.3451.2.v1"
+  instance_class         = "db.t2.micro"
+  username               = var.admin_user
+  password               = var.admin_pass
+  # parameter_group_name   = "default.mssql"
+  vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
+  port = 1433
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+  db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
+}
+
+resource "aws_db_instance" "prdpins" {
+  engine                 = "sqlserver-ex"
+  identifier             = "prdpins"
+  allocated_storage      = 20
+  engine_version         = "14.00.3451.2.v1"
+  instance_class         = "db.t2.micro"
+  username               = var.admin_user
+  password               = var.admin_pass
+  # parameter_group_name   = "default.mssql"
+  vpc_security_group_ids = ["${aws_security_group.rds_sg.id}"]
+  port = 1433
+  skip_final_snapshot    = true
+  publicly_accessible    = true
+  db_subnet_group_name   = "${aws_db_subnet_group.poc_db_subnet_group.name}"
+}
+
+# resource "null_resource" "execute_sql" {
+#   provisioner "local-exec" {
+#     command = "sqlcmd -U ${var.admin_user} -S ${aws_db_instance.bi01.address},${aws_db_instance.bi01.port} -i ../../modules/rds/dump_db.sql"
+#   }
+#   depends_on = [aws_db_instance.bi01]
+# }
 
 
