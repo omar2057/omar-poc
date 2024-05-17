@@ -1,0 +1,57 @@
+name: Reusable workflow - Build
+
+on:
+  workflow_call:
+    inputs:
+      SolutionPath:
+        required: true
+        type: string
+      SolutionConfiguration:
+        required: true
+        type: string
+      SolutionPlatform:
+        required: true
+        type: string
+      TargetFrameworkVersion:
+        required: true
+        type: string
+      CustomPublishProperties:
+        required: true
+        type: string
+      Runner:
+        required: true
+        type: string
+      BranchTriggered:
+        required: true
+        type: string
+
+jobs:
+  Build-Solution:
+    runs-on: ${{inputs.Runner}}
+    steps:
+        - name: Set Date
+          run: |
+            $DateValue = Get-Date -Format yyyyMMdd
+            echo "Date=$DateValue" >> $env:GITHUB_ENV
+        # - name: Set env variables
+        #   id: set_env_vars
+        #   run: |
+        #     echo "Branch Triggered: ${{inputs.BranchTriggered}}"
+            
+        # - run: |
+        #     echo "ArtifactSourcePath=${{env.PublishDirPath}}\\*" >> $env:GITHUB_ENV
+        #     echo "ArtifactPath=\\Artifact\\${{env.PackageName}}" >> $env:GITHUB_ENV
+    
+        # - name: Checkout Code 
+        #   uses: actions/checkout@v1
+
+        # - name: Create Temp Folders
+        #   run: |
+        #     New-Item "PublishFolder" -ItemType Directory
+        #     New-Item "Artifact" -ItemType Directory
+    
+        # - name: Restore NuGet Packages
+        #   run: nuget restore ${{inputs.SolutionPath}}
+    
+        # - name: Build Solution
+        #   run: msbuild ${{inputs.SolutionPath}} /p:Configuration=${{inputs.SolutionConfiguration}} /p:Platform=${{inputs.SolutionPlatform}} /p:TargetFrameworkVersion=${{inputs.TargetFrameworkVersion}}
