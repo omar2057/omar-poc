@@ -1,0 +1,64 @@
+name: EAS Build
+
+on:
+  push:
+    branches:
+      - 'main'
+
+  workflow_dispatch:
+
+jobs:
+  EnvSetup:
+    runs-on: Build-dev
+    outputs:
+      BranchNameOut: ${{ steps.set_env_vars.outputs.BranchNameOut }}
+      ProjectsToPublish: ${{ steps.set_publish_projects.outputs.Projects-to-publish }}
+    steps:
+        - name: Set variables for PR
+          if: "${{ github.head_ref != '' }}"
+          run: |
+            echo "BranchName=${{ github.head_ref }}" >> $env:GITHUB_ENV
+        - name: Set variables for Push
+          if: "${{ github.head_ref == '' }}"
+          run: |
+            echo "BranchName=${{ github.ref_name }}" >> $env:GITHUB_ENV
+        - name: Set env variables
+          id: set_env_vars
+          run: | 
+            echo "Setting environment variables"
+            echo "BranchNameOut=${{ env.BranchName }}" >> $env:GITHUB_OUTPUT
+        - name: Set Projects-to-publish
+          id: set_publish_projects
+          run: echo "ProjectsToPublish=${{ env.PROJECTSTOPUBLISH }}" >> $env:GITHUB_OUTPUT
+            
+  
+  Build-Solution:
+    name: EAS-Build-Solution
+    needs: EnvSetup
+    uses: .github/workflows/main.yml@main
+    with:
+      SolutionPath: ExamineeAS.sln
+      SolutionConfiguration: Debug
+      SolutionPlatform: '"Any CPU"'
+      TargetFrameworkVersion: v4.6.2
+      CustomPublishProperties: '/p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PackageAsSingleFile=false'
+      Runner: Build-dev
+      BranchTriggered: ${{ needs.EnvSetup.outputs.BranchNameOut }}
+
+  Publish-Projects:
+    name: Publish
+    strategy:
+      matrix:
+        Projects-to-publish: ${{ fromJson(needs.EnvSetup.outputs.ProjectsToPublish) }}
+    needs: [EnvSetup,Build-Solution]
+    uses: .github/workflows/publish-project.yml@main
+    with:
+      ProjectName: ${{ matrix.Projects-to-publish.ProjectName }}
+      MainProjectPath: ${{ matrix.Projects-to-publish.MainProjectPath }}
+      ProjectConfiguration: ${{ matrix.Projects-to-publish.ProjectConfiguration }}
+      ProjectPlatform: ${{ matrix.Projects-to-publish.ProjectPlatform }}
+      SolutionPath: ExamineeAS.sln
+      TargetFrameworkVersion: ${{ matrix.Projects-to-publish.TargetFrameworkVersion }}
+      CustomPublishProperties: ${{ matrix.Projects-to-publish.CustomPublishProperties }}
+      Runner: Build-dev
+      BranchTriggered: ${{ needs.EnvSetup.outputs.BranchNameOut }}
