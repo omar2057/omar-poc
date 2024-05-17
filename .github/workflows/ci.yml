@@ -9,7 +9,7 @@ on:
 
 jobs:
   EnvSetup:
-    runs-on: Build-dev
+    runs-on: windows-latest
     outputs:
       BranchNameOut: ${{ steps.set_env_vars.outputs.BranchNameOut }}
       ProjectsToPublish: ${{ steps.set_publish_projects.outputs.Projects-to-publish }}
@@ -35,14 +35,14 @@ jobs:
   Build-Solution:
     name: EAS-Build-Solution
     needs: EnvSetup
-    uses: .github/workflows/main.yml@main
+    uses: ./.github/workflows/main.yml
     with:
       SolutionPath: ExamineeAS.sln
       SolutionConfiguration: Debug
       SolutionPlatform: '"Any CPU"'
       TargetFrameworkVersion: v4.6.2
       CustomPublishProperties: '/p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:PackageAsSingleFile=false'
-      Runner: Build-dev
+      Runner: windows-latest
       BranchTriggered: ${{ needs.EnvSetup.outputs.BranchNameOut }}
 
   Publish-Projects:
@@ -51,7 +51,7 @@ jobs:
       matrix:
         Projects-to-publish: ${{ fromJson(needs.EnvSetup.outputs.ProjectsToPublish) }}
     needs: [EnvSetup,Build-Solution]
-    uses: .github/workflows/publish-project.yml@main
+    uses: ./.github/workflows/publish-project.yml
     with:
       ProjectName: ${{ matrix.Projects-to-publish.ProjectName }}
       MainProjectPath: ${{ matrix.Projects-to-publish.MainProjectPath }}
@@ -60,5 +60,5 @@ jobs:
       SolutionPath: ExamineeAS.sln
       TargetFrameworkVersion: ${{ matrix.Projects-to-publish.TargetFrameworkVersion }}
       CustomPublishProperties: ${{ matrix.Projects-to-publish.CustomPublishProperties }}
-      Runner: Build-dev
+      Runner: windows-latest
       BranchTriggered: ${{ needs.EnvSetup.outputs.BranchNameOut }}
