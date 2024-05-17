@@ -1,0 +1,98 @@
+name: Reusable workflow - Publish
+
+on:
+  workflow_call:
+    outputs:
+      PackageNameOut:
+        description: "Name of PackageNameOut"
+        value: ${{ jobs.Build.outputs.PackageNameOut }}
+      Version:
+        description: "Version of Package"
+        value: ${{ jobs.Build.outputs.Version }}
+    inputs:
+      ProjectName:
+        required: true
+        type: string
+      SolutionPath:
+        required: true
+        type: string
+      MainProjectPath:
+        required: true
+        type: string
+      ProjectConfiguration:
+        required: true
+        type: string
+      ProjectPlatform:
+        required: true
+        type: string
+      TargetFrameworkVersion:
+        required: true
+        type: string
+      CustomPublishProperties:
+        required: true
+        type: string
+      Runner:
+        required: true
+        type: string
+      BranchTriggered:
+        required: true
+        type: string
+
+jobs:
+  Publish:
+    runs-on: ${{inputs.Runner}}
+    outputs:
+        PackageNameOut: ${{ steps.set_env_vars.outputs.PackageNameOut }}
+        Version: ${{steps.upload_artifact.outputs.Version}}
+    steps:
+        - name: Set Date
+          run: |
+            $DateValue = Get-Date -Format yyyyMMdd
+            echo "Date=$DateValue" >> $env:GITHUB_ENV
+        - name: Set env variables
+          id: set_env_vars
+          run: |
+            echo "Branch Triggered: ${{inputs.BranchTriggered}}"
+            echo "PackageNameOut=${{inputs.ProjectName}}-${{env.Date}}.${{github.run_number}}.zip" >> $env:GITHUB_OUTPUT
+            echo "PackageName=${{inputs.ProjectName}}-${{env.Date}}.${{github.run_number}}.zip" >> $env:GITHUB_ENV
+            echo "PublishDirPath=\\PublishFolder\\${{inputs.ProjectName}}" >> $env:GITHUB_ENV
+        - run: |
+            echo "ArtifactSourcePath=${{env.PublishDirPath}}\\*" >> $env:GITHUB_ENV
+            echo "ArtifactPath=\\Artifact\\${{env.PackageName}}" >> $env:GITHUB_ENV
+    
+        - name: Checkout Code 
+          uses: actions/checkout@v1
+
+        # - name: Create Temp Folders
+        #   run: |
+        #     New-Item "PublishFolder" -ItemType Directory
+        #     New-Item "Artifact" -ItemType Directory
+    
+        # - name: Restore NuGet Packages
+        #   run: nuget restore ${{inputs.SolutionPath}}
+
+        # - name: Publish
+        #   run: msbuild ${{inputs.MainProjectPath}} /p:Configuration=${{inputs.ProjectConfiguration}} /p:Platform=${{inputs.ProjectPlatform}} /p:TargetFrameworkVersion=${{inputs.TargetFrameworkVersion}} /t:WebPublish /p:publishUrl=${{github.workspace}}\\${{env.PublishDirPath}} ${{inputs.CustomPublishProperties}}
+    
+        # - name: Generate artifact as Zip
+        #   run: Compress-Archive -Path ${{github.workspace}}${{env.ArtifactSourcePath}} -DestinationPath ${{github.workspace}}${{env.ArtifactPath}}
+    
+        # - name: Create Hash256 for zip file
+        #   env: 
+        #     hashAlgorithm: "SHA256"
+        #   run: |
+        #     $hash256 = Get-FileHash -Algorithm ${{env.hashAlgorithm}} -Path ${{github.workspace}}${{env.ArtifactPath}}
+        #     $hash = $hash256.Hash
+        #     echo "HASH256='$hash'.ToLower()" >> $env:GITHUB_ENV
+
+        # - name: Upload to AWS CodeArtifact
+        #   id: upload_artifact
+        #   env:
+        #     repository: ${{inputs.ProjectName}}
+        #     package: ${{inputs.ProjectName}}
+        #     assetName: ${{inputs.ProjectName}}
+        #     pathToAsset: ${{github.workspace}}${{env.ArtifactPath}}
+        #     version: "${{env.Date}}.${{github.run_number}}"
+        #   run: |
+        #     echo "Version=${{env.version}}" >> $env:GITHUB_OUTPUT
+        #     aws codeartifact publish-package-version --domain ${{env.CodeArtifactDomain}} --repository ${{env.repository}} --format generic --namespace ${{env.CodeArtifactNamespace}} --package ${{env.package}} --package-version ${{env.version}} --asset-content ${{env.pathToAsset}} --asset-name "${{env.assetName}}_${{env.CodeArtifactNamespace}}" --asset-sha256 ${{env.HASH256}}
